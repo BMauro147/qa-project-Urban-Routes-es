@@ -44,6 +44,7 @@ Para ejecutar las pruebas, asegúrate de tener todos los requisitos instalados y
 
 ```bash
 python main.py
+```
 
 ## Implementación
 
