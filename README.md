@@ -70,7 +70,15 @@ El archivo `main.py` contiene las clases `UrbanRoutesPage` y `TestUrbanRoutes`, 
     - `request_blankets_scarves`
     - `request_helado`
     - `request_taxi`
-  
+    - `name_driver`
+    - `time_of_waiting`
+    - `number_of_trip`
+    - `detail_button`
+    - `pickup_location`
+    - `droppoff_location`
+    - `payment_method_locator`
+    - `get_info_trip`
+
   - **Métodos**:
     - `set_from(address)`
     - `set_to(address)`
@@ -83,6 +91,7 @@ El archivo `main.py` contiene las clases `UrbanRoutesPage` y `TestUrbanRoutes`, 
     - `request_ice_cream()`
     - `open_taxi_modal()`
     - `wait_for_driver_info()`
+    - `verify_information_trip()`
 
 - **TestUrbanRoutes**: Contiene las pruebas automatizadas que verifican la funcionalidad de la aplicación.
 

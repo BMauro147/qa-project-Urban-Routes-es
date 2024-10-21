@@ -61,10 +61,21 @@ class UrbanRoutesPage:
     field_number_card = (By.CSS_SELECTOR, "#number")
     field_code_card = (By.CSS_SELECTOR,".card-code-input > input:nth-child(1)")
     button_add_card = (By.CSS_SELECTOR,".pp-buttons > button:nth-child(1)")
-    message_console = (By.CSS_SELECTOR,".form > div:nth-child(3) > div:nth-child(1) > label:nth-child(2)")
+    close_payment_button = (By.CSS_SELECTOR, ".payment-picker > div:nth-child(2) > div:nth-child(1) > button:nth-child(1)")
+    message_console = (By.XPATH,'//*[@id="comment"]')
     request_blankets_scarves = (By.CSS_SELECTOR, "div.r-type-switch:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > span:nth-child(2)")
     request_helado = (By.CSS_SELECTOR, "div.sub:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(3)")
     request_taxi = (By.CSS_SELECTOR, ".smart-button-main")
+    #Request information about trip
+    name_driver = (By.XPATH, "//div[@class='order-button']/following-sibling::div[1]")
+    time_of_waiting = (By.CSS_SELECTOR, '.order-header-title')
+    number_of_trip = (By.CSS_SELECTOR,".number")
+    #Verify information about trip
+    detail_button = (By.CSS_SELECTOR, '#root > div > div.order.shown > div.order-body > div.order-subbody > div.order-buttons > div:nth-child(3) > button > img')
+    pickup_location =(By.CSS_SELECTOR, 'div.order-details-row:nth-child(1) > div:nth-child(2) > div:nth-child(1)')
+    droppoff_location = (By.CSS_SELECTOR, 'div.order-details-row:nth-child(2) > div:nth-child(2) > div:nth-child(1)')
+    payment_method_locator = (By.CSS_SELECTOR, 'div.order-details-row:nth-child(3) > div:nth-child(2) > div:nth-child(1)')
+    get_info_trip = (By.CSS_SELECTOR, "div.order-details-row:nth-child(4) > div:nth-child(2) > div:nth-child(2)")
 
     def __init__(self, driver):
         self.driver = driver
@@ -102,12 +113,15 @@ class UrbanRoutesPage:
         self.driver.find_element(*self.field_code_card).send_keys(Keys.TAB)  # Cambiar el enfoque
         self.driver.find_element(*self.button_add_card).click()
 
+        wait = WebDriverWait(self.driver, 10)
+        wait.until(EC.visibility_of_element_located(self.close_payment_button)).click()
+
     def write_message(self):
         self.driver.find_element(*self.message_console).send_keys(message_for_driver)
 
     def request_blanket_and_tissues(self):
         self.driver.find_element(*self.request_blankets_scarves).click()
-        time.sleep(1)
+
 
     def request_ice_cream(self):
         for _ in range(2):
@@ -116,10 +130,38 @@ class UrbanRoutesPage:
     def open_taxi_modal(self):
         self.driver.find_element(*self.request_taxi).click()
 
+
     def wait_for_driver_info(self):
-        WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(self.driver_info)
-        )
+        wait = WebDriverWait(self.driver, 50)
+        name_driver_element = wait.until(EC.visibility_of_element_located(self.name_driver))
+        driver_name = name_driver_element.text
+
+        element_time_of_waiting = wait.until(EC.visibility_of_element_located(self.time_of_waiting))
+        driver_time_wait = element_time_of_waiting.text
+
+        element_number_of_trip = wait.until(EC.visibility_of_element_located(self.number_of_trip))
+        driver_number_trip = element_number_of_trip.text
+        print()
+        print()
+        print(f'Nombre del conductor: {driver_name}')
+        print(f'Mensaje: {driver_time_wait}')
+        print(f'Número de viaje: {driver_number_trip}')
+
+    def verify_information_trip(self):
+        wait = WebDriverWait(self.driver, 50)
+        self.driver.find_element(*self.detail_button).click()
+
+        pickup_location_text = wait.until(EC.visibility_of_element_located(self.pickup_location)).text
+        droppoff_location_text = wait.until(EC.visibility_of_element_located(self.droppoff_location)).text
+        payment_method_text = wait.until(EC.visibility_of_element_located(self.payment_method_locator)).text
+
+        from_field_text = wait.until(EC.visibility_of_element_located(self.from_field)).get_attribute("value")
+        to_field_text = wait.until(EC.visibility_of_element_located(self.to_field)).get_attribute("value")
+
+        assert pickup_location_text == from_field_text, f"Pickup location '{pickup_location_text}' does not match from field '{from_field_text}'"
+        assert droppoff_location_text == to_field_text, f"Droppoff location '{droppoff_location_text}' does not match to field '{to_field_text}'"
+        assert payment_method_text == "Tarjeta", f"Payment method '{payment_method_text}' is not 'Tarjeta'"
+
 
 class TestUrbanRoutes:
 
@@ -127,11 +169,17 @@ class TestUrbanRoutes:
 
     @classmethod
     def setup_class(cls):
-        chrome_options = Options()  # Define aquí chrome_options
-        chrome_options.add_argument("--headless")  # Opcional
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        cls.driver = webdriver.Chrome(service=Service(), options=chrome_options)
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_experimental_option("perfLoggingPrefs", {'enableNetwork': True, 'enablePage': True})
+        chrome_options.set_capability("goog:loggingPrefs", {'performance': 'ALL'})
+
+        # Estos son para colab :)
+        # chrome_options.add_argument('--headless')
+        # chrome_options.add_argument('--no-sandbox')
+        # chrome_options.add_argument("--disable-dev-shm-usage")
+        # chrome_options.add_argument("--window-size=1920x1080")
+        # chrome_options.headless = True
+        cls.driver = webdriver.Chrome(options=chrome_options)
 
     def test_set_route(self):
         self.driver.get(data.urban_routes_url)
@@ -171,20 +219,10 @@ class TestUrbanRoutes:
         # Esperar a que aparezca la información del conductor
         routes_page.wait_for_driver_info()
 
+        #Verifica que la información del viaje sea correcta
+        routes_page.verify_information_trip()
+
 
     @classmethod
     def teardown_class(cls):
         cls.driver.quit()
-""" Hola que tal, como comentario trate de realizar hasta donde pude el código, la parte donde me confunde es
- al obtener el código para el numero de telefono, estuve investigando como realizar esto, pero no lo logré,
- el problema inicia con esto 
- def setup_class(cls):
-        # no lo modifiques, ya que necesitamos un registro adicional habilitado para recuperar el código de confirmación del teléfono
-        from selenium.webdriver import DesiredCapabilities
-        capabilities = DesiredCapabilities.CHROME
-        capabilities["goog:loggingPrefs"] = {'performance': 'ALL'}
-        cls.driver = webdriver.Chrome(desired_capabilities=capabilities)
-
-ya que desired_capabilities me lo muestra como error en python y si bien menciona no modificar el código lo modifique para 
-poder avanzar en las pruebas, si bien avance hasta el paso de obtener el código pero aquí es donde mi código ya no funciona
-de igual manera si tienes alguna ayuda u orientación para que el código funcione sería de mucha ayuda"""
