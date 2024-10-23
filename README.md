@@ -23,6 +23,13 @@ Para ejecutar las pruebas, asegúrate de tener instalado lo siguiente:
 
 - `main.py`: Contiene la implementación de las pruebas y la lógica de la página de Urban Routes.
 - `data.py`: Archivo que contiene las variables necesarias para las pruebas, como direcciones y datos de contacto.
+- `locators`: Contiene localizadores específicos para interactuar con la página.
+- `get_code.py`: Archivo para obtener el código para el numero de teléfono.
+- `UrbanRoutesPage.py`: Archivo que contiene cada uno de los métodos para cada localizador.
+- `TestUrbanRoutes.py`: Contiene la clase para ejecutar los métodos definidos en ```UrbanRoutesPage.py``` así como el método para configurar el navegador para las pruebas
+
+
+
 
 ## Funcionalidades Probadas
 
@@ -43,15 +50,17 @@ Las pruebas automatizadas cubren las siguientes acciones:
 Para ejecutar las pruebas, asegúrate de tener todos los requisitos instalados y corre el siguiente comando en la terminal:
 
 ```bash
-python main.py
+pytest.main.py
 ```
 
 ## Implementación
+El archivo principal para ejecutar las pruebas es:
 
-El archivo `main.py` contiene las clases `UrbanRoutesPage` y `TestUrbanRoutes`, donde:
+```
+main.py
+```
 
-- **UrbanRoutesPage**: Define los localizadores y métodos necesarios para interactuar con la página.
-  - **Localizadores**:
+- **Localizadores**:
     - `from_field`
     - `to_field`
     - `button_taxi`
