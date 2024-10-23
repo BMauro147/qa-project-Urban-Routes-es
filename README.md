@@ -88,7 +88,7 @@ main.py
     - `payment_method_locator`
     - `get_info_trip`
 
-  - **Métodos**:
+ - **Métodos**:
     - `set_from(address)`
     - `set_to(address)`
     - `select_comfort()`
