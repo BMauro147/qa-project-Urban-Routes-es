@@ -127,3 +127,7 @@ class TestUrbanRoutes:
 ```
 ## Contribuciones
 Si deseas contribuir a este proyecto, no dudes en enviar un pull request o abrir un issue para discutir mejoras. Todas las contribuciones son bienvenidas.
+## Contacto
+
+- **Email**: maurobecerra65@gmail.com
+- **LinkedIn**: [(https://linkedin.com/in/jesusmauro)](https://www.linkedin.com/in/maurobecerragalvan/)
